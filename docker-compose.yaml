@@ -33,9 +33,13 @@ services:
     command: node server.js
     environment:
       - PORT=3001
-      - API_BASE_URL=http://zosConnect:9080
+      # Proxy directo a Open Liberty (sin pasar por z/OS Connect)
+      # host.docker.internal resuelve al host Windows donde corre mvn liberty:run
+      - API_BASE_URL=http://host.docker.internal:9080
     ports:
       - "3001:3001"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./src/frontend:/app
     depends_on:
