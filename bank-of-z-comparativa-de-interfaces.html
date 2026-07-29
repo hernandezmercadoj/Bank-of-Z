@@ -1,0 +1,888 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bank of Z — Comparativa de Interfaces</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    background: #f7f8fa;
+    color: #1f2328;
+  }
+
+  /* ── Page layout ── */
+  .page-header {
+    background: #1f2328;
+    color: #fff;
+    padding: 20px 32px 16px;
+    border-bottom: 3px solid #3b82d4;
+  }
+  .page-header h1 { font-size: 20px; font-weight: 600; letter-spacing: .3px; }
+  .page-header p  { font-size: 12px; color: #a0aab4; margin-top: 4px; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    max-width: 1340px;
+    margin: 28px auto;
+    padding: 0 24px;
+  }
+
+  .panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; }
+  .panel + .panel { margin-left: 24px; }
+
+  .panel-label {
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-label.classic { background: #1c1c1c; color: #00ff41; }
+  .panel-label.modern  { background: #0f62fe; color: #fff; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+  }
+  .badge-3270  { background: #003300; color: #00ff41; border: 1px solid #00ff41; }
+  .badge-web   { background: rgba(255,255,255,.2); color: #fff; border: 1px solid rgba(255,255,255,.4); }
+
+  /* ─────────────────────────────────────────
+     CLASSIC 3270 TERMINAL
+  ───────────────────────────────────────── */
+  .terminal {
+    background: #000;
+    font-family: "Courier New", "Lucida Console", monospace;
+    font-size: 13.5px;
+    line-height: 1.45;
+    padding: 12px 10px;
+    min-height: 460px;
+    position: relative;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px 10px 0;
+    background: #111;
+    border-bottom: 1px solid #222;
+  }
+  .tab {
+    padding: 4px 14px;
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 3px 3px 0 0;
+    color: #888;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-bottom: none;
+  }
+  .tab.active { background: #000; color: #00ff41; border-color: #555; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .t-row { white-space: pre; }
+
+  /* colours matching BMS DFHMDF COLOR= */
+  .c-blue     { color: #4da6ff; }
+  .c-red      { color: #ff5555; }
+  .c-turq     { color: #55ffff; }
+  .c-green    { color: #00ff41; }
+  .c-yellow   { color: #ffff55; }
+  .c-neutral  { color: #aaaaaa; }
+  .c-white    { color: #ffffff; }
+
+  .c-green-ul { color: #00ff41; text-decoration: underline; }
+  .c-brt      { color: #ffff55; font-weight: bold; }
+
+  /* fake cursor */
+  .cursor::after {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 13px;
+    background: #00ff41;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* scan-line overlay */
+  .terminal::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px, transparent 2px,
+      rgba(0,0,0,.18) 2px, rgba(0,0,0,.18) 4px
+    );
+    pointer-events: none;
+  }
+
+  /* ─────────────────────────────────────────
+     MODERN WEB UI
+  ───────────────────────────────────────── */
+  .web-ui {
+    background: #f4f4f4;
+    min-height: 460px;
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 13px;
+  }
+
+  /* Web tabs */
+  .web-tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: 2px solid #e5e7eb;
+    padding: 0 16px;
+  }
+  .web-tab {
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #57606a;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+  .web-tab.active { color: #0f62fe; border-bottom-color: #0f62fe; }
+
+  .web-screen { display: none; }
+  .web-screen.active { display: block; }
+
+  /* Carbon-style header */
+  .carbon-header {
+    background: #161616;
+    color: #fff;
+    padding: 0 16px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 13px;
+  }
+  .carbon-header .brand { font-weight: 600; font-size: 14px; color: #fff; }
+  .carbon-nav { display: flex; gap: 0; }
+  .carbon-nav a {
+    padding: 0 16px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    color: #c6c6c6;
+    font-size: 12px;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+  }
+  .carbon-nav a.active { color: #fff; border-bottom-color: #4589ff; }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    padding: 10px 16px 0;
+    font-size: 11px;
+    color: #57606a;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .breadcrumb a { color: #0f62fe; text-decoration: none; }
+  .breadcrumb span { color: #c6c6c6; }
+
+  /* Page title */
+  .page-title-area {
+    background: #fff;
+    padding: 12px 16px 14px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .page-title-area h2 { font-size: 18px; font-weight: 600; color: #161616; }
+
+  /* Content area */
+  .web-content { padding: 16px; }
+
+  /* Search bar */
+  .search-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: #fff;
+    padding: 14px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  .field-group { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .field-label-web { font-size: 11px; font-weight: 600; color: #525252; }
+  .field-input {
+    border: 1px solid #8d8d8d;
+    background: #fff;
+    padding: 6px 10px;
+    font-size: 12px;
+    height: 32px;
+    border-radius: 0;
+    outline: none;
+    color: #161616;
+    width: 100%;
+  }
+  .field-input:focus { border-color: #0f62fe; box-shadow: 0 0 0 2px rgba(15,98,254,.3); }
+  .field-input.readonly { background: #f4f4f4; color: #525252; }
+
+  .btn-primary {
+    background: #0f62fe;
+    color: #fff;
+    border: none;
+    padding: 0 16px;
+    height: 32px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: 0;
+  }
+  .btn-primary:hover { background: #0353e9; }
+  .btn-ghost {
+    background: transparent;
+    color: #0f62fe;
+    border: 1px solid #0f62fe;
+    padding: 0 16px;
+    height: 32px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  /* Details card */
+  .details-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 16px;
+  }
+  .details-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #161616;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+  }
+  .field-item { display: flex; flex-direction: column; gap: 3px; }
+
+  /* Balance highlight */
+  .balance-positive { color: #198038; font-weight: 700; font-size: 13px; }
+  .balance-highlight {
+    background: #defbe6;
+    border: 1px solid #a7f0ba;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .balance-label { font-size: 11px; color: #525252; font-weight: 600; }
+
+  .status-chip {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .status-active   { background: #defbe6; color: #0e6027; }
+  .status-inactive { background: #f4f4f4; color: #525252; }
+
+  .actions-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  /* Data table */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 12px; }
+  .data-table th {
+    background: #e0e0e0;
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    color: #161616;
+    border-bottom: 2px solid #c6c6c6;
+  }
+  .data-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #161616;
+  }
+  .data-table tr:hover td { background: #f4f4f4; }
+  .data-table a { color: #0f62fe; text-decoration: none; font-size: 11px; }
+
+  /* Notification inline */
+  .notif-info {
+    background: #edf5ff;
+    border-left: 3px solid #4589ff;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: #0043ce;
+    margin-bottom: 12px;
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* ─── Legend & arrow ─── */
+  .legend-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1340px;
+    margin: 0 auto 12px;
+    padding: 0 24px;
+    font-size: 11px;
+    color: #57606a;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-green { background: #00c853; }
+  .dot-blue  { background: #0f62fe; }
+  .evolution-arrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: #57606a;
+    font-weight: 600;
+  }
+  .arrow-line {
+    width: 60px;
+    height: 2px;
+    background: #c6c6c6;
+    position: relative;
+  }
+  .arrow-line::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-left-color: #c6c6c6;
+  }
+
+  /* ─── Footer ─── */
+  .made-with {
+    text-align: center;
+    font-size: 12px;
+    color: #57606a;
+    padding: 20px 0 16px;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 28px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Bank of Z — Comparativa de Interfaces de Usuario</h1>
+  <p>
+    Reconstrucción fiel a partir de los mapas BMS (<code>BNK1DAM</code>, <code>BNK1DCM</code>, <code>BNK1MAI</code>)
+    y el código HTML/JS del frontend (<code>account-details.html</code>, <code>customer-details.html</code>)
+  </p>
+</div>
+
+<div class="legend-row">
+  <div style="display:flex;gap:20px">
+    <span class="legend-item"><span class="dot dot-green"></span> Interfaz 3270 CICS clásica — Terminal IBM verde fósforo, 24×80 caracteres</span>
+    <span class="legend-item"><span class="dot dot-blue"></span> Interfaz web moderna — IBM Carbon Design System v2, responsive</span>
+  </div>
+  <div class="evolution-arrow">
+    <span>CICS / BMS</span>
+    <div class="arrow-line"></div>
+    <span>Carbon Web</span>
+  </div>
+</div>
+
+
+<div class="layout">
+
+  
+  <div class="panel">
+    <div class="panel-label classic">
+      <span>Terminal 3270</span>
+      <span class="badge badge-3270">CICS · BMS · 24×80</span>
+    </div>
+
+    
+    <div class="tabs">
+      <div class="tab active">Menú Principal</div>
+      <div class="tab">Display Account</div>
+      <div class="tab">Display Customer</div>
+    </div>
+
+    <div class="terminal">
+
+      
+      <div class="screen active" id="t-menu">
+<div class="t-row"><span class="c-blue">BNK1MA </span>        <span class="c-red">CICS Banking Sample Application - Main Menu.</span>       </div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-turq">Select an option. Then press Enter.            </span></div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-turq">Action . . . . </span><span class="c-green-ul cursor"> </span>   <span class="c-neutral">1.  Display/Delete/Update CUSTOMER information</span></div>
+<div class="t-row">                   <span class="c-neutral">2.  Display/Delete ACCOUNT information        </span></div>
+<div class="t-row">                   <span class="c-neutral">3.  Create CUSTOMER                           </span></div>
+<div class="t-row">                   <span class="c-neutral">4.  Create ACCOUNT                            </span></div>
+<div class="t-row">                   <span class="c-neutral">5.  Update ACCOUNT                            </span></div>
+<div class="t-row">                   <span class="c-neutral">6.  Credit/Debit funds to an ACCOUNT          </span></div>
+<div class="t-row">                   <span class="c-neutral">7.  Transfer funds                            </span></div>
+<div class="t-row"> </div>
+<div class="t-row">                   <span class="c-neutral">A.  Look up Accounts with Customer Number     </span></div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-brt">                                                                               </span></div>
+<div class="t-row"><span class="c-blue">F3=Exit   F12=Cancel</span></div>
+      </div>
+
+      
+      <div class="screen" id="t-account">
+<div class="t-row"><span class="c-blue">BNK1DA </span>        <span class="c-red">CICS Banking Sample Application - Display Account.</span>    </div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-turq">Provide an ACCOUNT number. Then press Enter.    </span></div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-turq">ACCOUNT NUMBER </span> <span class="c-green-ul">00000042</span></div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-neutral"> Customer Number:  </span><span class="c-neutral">0000000123</span></div>
+<div class="t-row"><span class="c-neutral"> Sort Code      :  </span><span class="c-neutral">987654</span></div>
+<div class="t-row"><span class="c-neutral"> Account Number :  </span><span class="c-neutral">00000042</span></div>
+<div class="t-row"><span class="c-neutral"> Account Type   :  </span><span class="c-neutral">CURRENT </span></div>
+<div class="t-row"><span class="c-neutral"> Interest Rate  :  </span><span class="c-neutral">0002.75</span></div>
+<div class="t-row"><span class="c-neutral"> Account Opened :  </span><span class="c-neutral">15</span><span class="c-green">/</span><span class="c-neutral">03</span><span class="c-green">/</span><span class="c-neutral">2019</span></div>
+<div class="t-row"><span class="c-neutral"> Overdraft limit:  </span><span class="c-neutral">00001000</span></div>
+<div class="t-row"><span class="c-neutral"> Last statement :  </span><span class="c-neutral">31</span><span class="c-green">/</span><span class="c-neutral">05</span><span class="c-green">/</span><span class="c-neutral">2025</span></div>
+<div class="t-row"><span class="c-neutral"> Next statement :  </span><span class="c-neutral">30</span><span class="c-green">/</span><span class="c-neutral">06</span><span class="c-green">/</span><span class="c-neutral">2025</span></div>
+<div class="t-row"><span class="c-neutral"> Available Bal  : </span><span class="c-neutral">  +000004256.89</span></div>
+<div class="t-row"><span class="c-neutral"> Actual Balance : </span><span class="c-neutral">  +000004156.89</span></div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-brt">                                                                               </span></div>
+<div class="t-row"><span class="c-blue">F3=Exit   F12=Cancel</span></div>
+      </div>
+
+      
+      <div class="screen" id="t-customer">
+<div class="t-row"><span class="c-blue">BNK1DC </span>        <span class="c-red">CICS Banking Sample Application - Display Customer.</span>   </div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-turq">Provide a CUSTOMER number. Then press Enter.    </span></div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-turq">CUSTOMER NUMBER  </span><span class="c-green-ul">0000000123</span></div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-neutral">Sort Code        </span><span class="c-neutral">987654</span></div>
+<div class="t-row"><span class="c-neutral">Customer Number  </span><span class="c-neutral">0000000123</span></div>
+<div class="t-row"><span class="c-neutral">Title            </span><span class="c-neutral">Mr        </span></div>
+<div class="t-row"><span class="c-neutral">First Name       </span><span class="c-neutral">John                              </span></div>
+<div class="t-row"><span class="c-neutral">Last Name        </span><span class="c-neutral">Smith                             </span></div>
+<div class="t-row"><span class="c-neutral">Address Line 1   </span><span class="c-neutral">14 Elm Street                     </span></div>
+<div class="t-row"><span class="c-neutral">Address Line 2   </span><span class="c-neutral">Flat 2B                           </span></div>
+<div class="t-row"><span class="c-neutral">City             </span><span class="c-neutral">London                            </span></div>
+<div class="t-row"><span class="c-neutral">Postcode         </span><span class="c-neutral">EC1A 1BB  </span></div>
+<div class="t-row"><span class="c-neutral">Country          </span><span class="c-neutral">United Kingdom                    </span></div>
+<div class="t-row"><span class="c-neutral">Customer D.O.B.  </span><span class="c-neutral">04</span><span class="c-neutral">/</span><span class="c-neutral">11</span><span class="c-neutral">/</span><span class="c-neutral">1978</span></div>
+<div class="t-row"><span class="c-neutral">Credit Score     </span><span class="c-neutral">742</span></div>
+<div class="t-row"><span class="c-neutral">CS Review Date   </span><span class="c-neutral">01</span><span class="c-neutral">/</span><span class="c-neutral">12</span><span class="c-neutral">/</span><span class="c-neutral">2025</span></div>
+<div class="t-row"> </div>
+<div class="t-row"> </div>
+<div class="t-row"><span class="c-brt">                                                                               </span></div>
+<div class="t-row"><span class="c-blue">F3=Exit   F12=Cancel</span></div>
+      </div>
+
+    </div>
+  </div>
+
+
+  
+  <div class="panel" style="margin-left:24px">
+    <div class="panel-label modern">
+      <span>Interfaz Web Moderna</span>
+      <span class="badge badge-web">IBM Carbon DS · Responsive</span>
+    </div>
+
+    
+    <div class="web-tabs">
+      <div class="web-tab active">Inicio</div>
+      <div class="web-tab">Account Details</div>
+      <div class="web-tab">Customer Details</div>
+    </div>
+
+    
+    <div class="web-screen active" id="w-menu">
+      <div class="web-ui" style="min-height:460px">
+        <div class="carbon-header">
+          <span class="brand">Bank of Z</span>
+          <div class="carbon-nav">
+            <a href="#" class="active">Home</a>
+            <a href="#">Accounts</a>
+            <a href="#">Customers</a>
+            <a href="#">Transactions</a>
+            <a href="#">Admin</a>
+          </div>
+        </div>
+
+        
+        <div style="background:#fff;padding:24px 20px 20px;border-bottom:1px solid #e5e7eb">
+          <p style="font-size:11px;color:#57606a;margin-bottom:6px">Home / Control Panel</p>
+          <h2 style="font-size:22px;font-weight:600;color:#161616">Welcome to Bank of Z</h2>
+          <p style="font-size:13px;color:#525252;margin-top:4px">Select an operation from the options below</p>
+        </div>
+
+        <div style="padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:14px;border-left:3px solid #0f62fe">
+            <div style="font-size:11px;font-weight:700;color:#0f62fe;margin-bottom:4px">OPTION 1</div>
+            <div style="font-weight:600;color:#161616;font-size:13px">Display / Update Customer</div>
+            <div style="font-size:11px;color:#57606a;margin-top:3px">View, edit or delete customer records</div>
+            <a href="#" style="display:inline-block;margin-top:10px;font-size:11px;color:#0f62fe;font-weight:600">Go →</a>
+          </div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:14px;border-left:3px solid #0f62fe">
+            <div style="font-size:11px;font-weight:700;color:#0f62fe;margin-bottom:4px">OPTION 2</div>
+            <div style="font-weight:600;color:#161616;font-size:13px">Display / Delete Account</div>
+            <div style="font-size:11px;color:#57606a;margin-top:3px">Enquire on account balance and details</div>
+            <a href="#" style="display:inline-block;margin-top:10px;font-size:11px;color:#0f62fe;font-weight:600">Go →</a>
+          </div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:14px;border-left:3px solid #6929c4">
+            <div style="font-size:11px;font-weight:700;color:#6929c4;margin-bottom:4px">OPTION 3</div>
+            <div style="font-weight:600;color:#161616;font-size:13px">Create Customer</div>
+            <div style="font-size:11px;color:#57606a;margin-top:3px">Register a new customer in the system</div>
+            <a href="#" style="display:inline-block;margin-top:10px;font-size:11px;color:#0f62fe;font-weight:600">Go →</a>
+          </div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:14px;border-left:3px solid #6929c4">
+            <div style="font-size:11px;font-weight:700;color:#6929c4;margin-bottom:4px">OPTION 4</div>
+            <div style="font-weight:600;color:#161616;font-size:13px">Create Account</div>
+            <div style="font-size:11px;color:#57606a;margin-top:3px">Open a new bank account for a customer</div>
+            <a href="#" style="display:inline-block;margin-top:10px;font-size:11px;color:#0f62fe;font-weight:600">Go →</a>
+          </div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:14px;border-left:3px solid #da1e28">
+            <div style="font-size:11px;font-weight:700;color:#da1e28;margin-bottom:4px">OPTION 6</div>
+            <div style="font-weight:600;color:#161616;font-size:13px">Credit / Debit Account</div>
+            <div style="font-size:11px;color:#57606a;margin-top:3px">Apply a debit or credit transaction</div>
+            <a href="#" style="display:inline-block;margin-top:10px;font-size:11px;color:#0f62fe;font-weight:600">Go →</a>
+          </div>
+          <div style="background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:14px;border-left:3px solid #da1e28">
+            <div style="font-size:11px;font-weight:700;color:#da1e28;margin-bottom:4px">OPTION 7</div>
+            <div style="font-weight:600;color:#161616;font-size:13px">Transfer Funds</div>
+            <div style="font-size:11px;color:#57606a;margin-top:3px">Move funds between accounts</div>
+            <a href="#" style="display:inline-block;margin-top:10px;font-size:11px;color:#0f62fe;font-weight:600">Go →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="web-screen" id="w-account">
+      <div class="web-ui" style="min-height:460px">
+        <div class="carbon-header">
+          <span class="brand">Bank of Z</span>
+          <div class="carbon-nav">
+            <a href="#">Home</a>
+            <a href="#" class="active">Accounts</a>
+            <a href="#">Customers</a>
+          </div>
+        </div>
+
+        <div class="breadcrumb">
+          <a href="#">Home</a><span>›</span>
+          <a href="#">Control Panel</a><span>›</span>
+          <span>Account Details</span>
+        </div>
+
+        <div class="page-title-area">
+          <h2>View / Update Account Details</h2>
+        </div>
+
+        <div class="web-content">
+          <div class="search-bar">
+            <div class="field-group">
+              <span class="field-label-web">Account Number</span>
+              <input class="field-input" type="text" />
+            </div>
+            <button class="btn-primary">Search</button>
+          </div>
+
+          
+          <div class="balance-highlight">
+            <div>
+              <div class="balance-label">AVAILABLE BALANCE</div>
+              <div class="balance-positive">£ 4,256.89</div>
+            </div>
+            <div style="text-align:right">
+              <div class="balance-label">ACTUAL BALANCE</div>
+              <div style="font-size:13px;font-weight:600;color:#161616">£ 4,156.89</div>
+            </div>
+            <div>
+              <span class="status-chip status-active">ACTIVE</span>
+            </div>
+          </div>
+
+          <div class="details-card">
+            <h3>Account Information</h3>
+            <div class="fields-grid">
+              <div class="field-item">
+                <span class="field-label-web">Account ID</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Customer ID</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Sort Code</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Account Type</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Interest Rate</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Overdraft Limit</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Account Opened</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Nickname</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Last Statement</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Next Statement</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+            </div>
+            <div class="actions-row">
+              <button class="btn-primary">Update Account</button>
+              <button class="btn-ghost">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="web-screen" id="w-customer">
+      <div class="web-ui" style="min-height:460px">
+        <div class="carbon-header">
+          <span class="brand">Bank of Z</span>
+          <div class="carbon-nav">
+            <a href="#">Home</a>
+            <a href="#">Accounts</a>
+            <a href="#" class="active">Customers</a>
+          </div>
+        </div>
+
+        <div class="breadcrumb">
+          <a href="#">Home</a><span>›</span>
+          <a href="#">Control Panel</a><span>›</span>
+          <span>Customer Details</span>
+        </div>
+
+        <div class="page-title-area">
+          <h2>View Customer Details</h2>
+        </div>
+
+        <div class="web-content">
+          <div class="notif-info">ℹ Use prefix <strong>C</strong> for CICS customers (e.g. C1234567) or <strong>I</strong> for IMS (e.g. I000000015)</div>
+
+          <div class="search-bar">
+            <div class="field-group">
+              <span class="field-label-web">Customer ID</span>
+              <input class="field-input" type="text" />
+            </div>
+            <div class="field-group" style="max-width:160px">
+              <span class="field-label-web">Customer Name</span>
+              <input class="field-input" type="text" />
+            </div>
+            <button class="btn-primary">Search</button>
+          </div>
+
+          <div class="details-card">
+            <h3>Customer Information (CICS)  <span class="status-chip status-active">ACTIVE</span></h3>
+            <div class="fields-grid">
+              <div class="field-item">
+                <span class="field-label-web">Customer ID</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Sort Code</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Title</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">First Name</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Last Name</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Phone Number</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Date of Birth</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Credit Score</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+              <div class="field-item" style="grid-column:span 2">
+                <span class="field-label-web">Address Line 1</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">City</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Postal Code</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">Country</span>
+                <input class="field-input" type="text" />
+              </div>
+              <div class="field-item">
+                <span class="field-label-web">CS Review Date</span>
+                <input class="field-input readonly" type="text" />
+              </div>
+            </div>
+            <div class="actions-row">
+              <button class="btn-primary">Update Customer</button>
+              <button class="btn-ghost">Cancel</button>
+            </div>
+          </div>
+
+          
+          <div class="details-card" style="margin-top:12px">
+            <h3>Customer Accounts</h3>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Account ID</th>
+                  <th>Sort Code</th>
+                  <th>Type</th>
+                  <th>Currency</th>
+                  <th>Avail. Balance</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>00000042</td>
+                  <td>98-76-54</td>
+                  <td>CURRENT</td>
+                  <td>GBP</td>
+                  <td class="balance-positive">£ 4,256.89</td>
+                  <td><span class="status-chip status-active">ACTIVE</span></td>
+                  <td><a href="#">View</a></td>
+                </tr>
+                <tr>
+                  <td>00000078</td>
+                  <td>98-76-54</td>
+                  <td>SAVINGS</td>
+                  <td>GBP</td>
+                  <td class="balance-positive">£ 12,040.00</td>
+                  <td><span class="status-chip status-active">ACTIVE</span></td>
+                  <td><a href="#">View</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+<div style="max-width:1340px;margin:0 auto 28px;padding:0 24px">
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden">
+    <div style="padding:12px 16px;background:#f7f8fa;border-bottom:1px solid #e5e7eb">
+      <strong style="font-size:13px">Diferencias clave entre las dos interfaces</strong>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:#f0f0f0">
+          <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #e5e7eb;font-weight:700">Aspecto</th>
+          <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #e5e7eb;font-weight:700;color:#00c853">Terminal 3270 / BMS</th>
+          <th style="padding:8px 12px;text-align:left;border-bottom:1px solid #e5e7eb;font-weight:700;color:#0f62fe">Web — Carbon Design</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#57606a">Resolución / Tamaño</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">24 filas × 80 columnas fijos</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">Responsive, adaptable</td></tr>
+        <tr style="background:#f7f8fa"><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#57606a">Colores</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">8 colores DFHMDF (verde, azul, rojo, turquesa, amarillo…)</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">Paleta Carbon completa + iconografía</td></tr>
+        <tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#57606a">Interacción</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">Teclas función (F3, F5, F10, F12, PF1–PF24)</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">Clicks, formularios, Enter key</td></tr>
+        <tr style="background:#f7f8fa"><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#57606a">Fuente de datos</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">EXEC CICS LINK → INQACC / INQCUST (Db2/VSAM)</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">REST API → z/OS Connect → CICS o IMS</td></tr>
+        <tr><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#57606a">Soporte IMS</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">No (sólo CICS)</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">Sí — prefix <code>I</code> en Customer ID, arrays de saldos</td></tr>
+        <tr style="background:#f7f8fa"><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0;color:#57606a">Validación</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">ATTRB NUM/UNPROT/PROT en el mapa BMS</td><td style="padding:7px 12px;border-bottom:1px solid #f0f0f0">JavaScript: regex, títulos válidos, YYYY-MM-DD…</td></tr>
+        <tr><td style="padding:7px 12px;color:#57606a">Saldos</td><td style="padding:7px 12px">PIC S9(10)V99 — formato <code>±999999999.99</code></td><td style="padding:7px 12px"><code>formatCurrency()</code> → <code>£ 4,256.89</code> localizado</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="made-with">Made with IBM Bob</div>
+
+
+</body>
+</html>

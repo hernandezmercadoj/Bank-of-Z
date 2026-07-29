@@ -1,5 +1,9 @@
-<server description="z/OS Connect Server">
+<server description="z/OS Connect Server — Bank-of-Z Hackathon 2026">
   <featureManager>
     <feature>zosconnect:zosConnect-3.0</feature>
+    <feature>zosconnect:httpServiceProvider-1.0</feature>
   </featureManager>
+
+  <!-- HTTP Service Provider: Java backend en el host (Open Liberty :9080) -->
+  <include location="${server.config.dir}/java-backend.xml" />
 </server>

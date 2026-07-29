@@ -1,4 +1,3 @@
-version: "3.2"
 services:
   zosConnect:
     image: icr.io/zosconnect/ibm-zcon-designer:3.0.101
@@ -17,7 +16,10 @@ services:
       - zosconnect_remote_download_allowlist=BLOCK_ALL
     ports:
       - "9443:9443"
-      - "9080:9080"
+      - "9090:9080"
+    extra_hosts:
+      # Permite que z/OS Connect (dentro del contenedor) alcance Open Liberty en el host
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./src/api:/workspace/project
       - ./logs/:/logs/

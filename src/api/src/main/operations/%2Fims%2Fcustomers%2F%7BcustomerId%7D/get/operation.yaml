@@ -1,3 +1,8 @@
 ---
 version: "1.0"
-zasset: "IBGCUDAT"
+# Bridge: z/OS Connect -> Java backend (IBM Bob 2.0 Hackathon 2026)
+# Originalmente: zasset: "IBGCUDAT" (IMS program)
+httpServiceProvider:
+  serviceRef: bankofzJavaBackend
+  method: GET
+  path: "/customers/{customerId}"

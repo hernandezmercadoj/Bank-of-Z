@@ -73,8 +73,10 @@ const server = http.createServer((req, res) => {
 
 // Proxy API requests to backend
 function proxyApiRequest(req, res) {
-    // Strip /api prefix for local Docker z/OS Connect
-    const urlPath = req.url.startsWith('/api/') ? req.url.substring(4) : req.url;
+    // Rewrite path: /customers/... → /bankofz-modernized/api/v1/customers/...
+    // Strip /api prefix if present, then prepend the Java backend context root
+    const stripped = req.url.startsWith('/api/') ? req.url.substring(4) : req.url;
+    const urlPath = '/bankofz-modernized/api/v1' + stripped;
     const apiUrl = new URL(`${API_BASE_URL}${urlPath}`);
     console.log(`Proxying API request to: ${apiUrl.href}`);
 

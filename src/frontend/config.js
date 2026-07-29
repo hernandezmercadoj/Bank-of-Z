@@ -10,14 +10,16 @@
 export const config = {
     api: {
         // Base URL for API endpoints
-        // In production, this should point to the z/OS Connect server on port 9080
-        // The frontend is served from a separate Liberty server on port 9081
+        // El frontend Node (:3001) proxea /customers, /accounts, /ims/* hacia Java (Open Liberty :9080)
+        // El proxy en server.js reenvía esas rutas a API_BASE_URL = http://zosConnect:9080
+        // z/OS Connect a su vez usa el httpServiceProvider para llegar a bankofz-modernized/api/v1
+        // Para desarrollo local directo (sin Docker): apunta directo al Java backend
         baseUrl: window.location.hostname === 'localhost'
-            ? 'http://localhost:9080/api'  // Local z/OS Connect server
-            : 'http://' + window.location.hostname + ':9080/api'  // Production z/OS Connect server
+            ? ''        // Rutas relativas → las intercepta el proxy Node en server.js
+            : ''        // En Docker también usamos rutas relativas (proxy en Node)
     },
     defaults: {
-        sortCode: '987654'
+        sortCode: '123456'
     }
 };
 

@@ -1,3 +1,8 @@
 ---
 version: "1.0"
-zasset: "UPDCUST"
+# Bridge: z/OS Connect -> Java backend (IBM Bob 2.0 Hackathon 2026)
+# Originalmente: zasset: "UPDCUST" (CICS program)
+httpServiceProvider:
+  serviceRef: bankofzJavaBackend
+  method: PUT
+  path: "/customers/{customerId}"

@@ -1,0 +1,276 @@
+
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bank of Z — API Catalog</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", system-ui, sans-serif; font-size: 13px; background: #f4f4f4; color: #161616; }
+
+.topbar { background: #161616; color: #fff; padding: 12px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 2px solid #0f62fe; }
+.topbar h1 { font-size: 16px; font-weight: 600; }
+.topbar p  { font-size: 11px; color: #8d8d8d; margin-top: 2px; }
+.topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.pill { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 12px; font-size: 10px; font-weight: 700; letter-spacing: .4px; }
+.pill-cics { background: #0f62fe22; color: #4589ff; border: 1px solid #4589ff55; }
+.pill-ims  { background: #6929c422; color: #be95ff; border: 1px solid #be95ff55; }
+.pill-get  { background: #defbe6; color: #0e6027; border: 1px solid #a7f0ba; }
+.pill-post { background: #fff8e1; color: #a56400; border: 1px solid #f1c21b; }
+.pill-put  { background: #edf5ff; color: #0043ce; border: 1px solid #97c1ff; }
+
+.filterbar { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 10px 24px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.filter-btn { padding: 5px 14px; border-radius: 16px; border: 1px solid #c6c6c6; background: #fff; cursor: pointer; font-size: 11px; font-weight: 600; color: #525252; }
+.filter-btn:hover { border-color: #0f62fe; color: #0f62fe; }
+.filter-btn.active { background: #0f62fe; color: #fff; border-color: #0f62fe; }
+.filter-sep { width: 1px; height: 20px; background: #e0e0e0; }
+.search-box { margin-left: auto; padding: 5px 12px; border: 1px solid #c6c6c6; font-size: 12px; width: 220px; background: #f4f4f4; color: #161616; }
+.search-box:focus { outline: none; border-color: #0f62fe; background: #fff; }
+
+.layout { display: grid; grid-template-columns: 330px 1fr; gap: 0; height: calc(100vh - 108px); }
+
+.endpoint-list { background: #fff; border-right: 1px solid #e0e0e0; overflow-y: auto; }
+.group-header { padding: 8px 14px 5px; font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #8d8d8d; border-bottom: 1px solid #f4f4f4; background: #fafafa; position: sticky; top: 0; z-index: 2; }
+.endpoint-item { padding: 10px 14px; border-bottom: 1px solid #f4f4f4; cursor: pointer; display: flex; align-items: flex-start; gap: 8px; }
+.endpoint-item:hover { background: #f4f4f4; }
+.endpoint-item.active { background: #edf5ff; border-left: 3px solid #0f62fe; padding-left: 11px; }
+.endpoint-item.hidden { display: none; }
+.method-tag { padding: 2px 7px; border-radius: 3px; font-size: 10px; font-weight: 800; min-width: 36px; text-align: center; flex-shrink: 0; margin-top: 1px; }
+.m-get  { background: #defbe6; color: #0e6027; }
+.m-post { background: #fff8e1; color: #a56400; }
+.m-put  { background: #edf5ff; color: #0043ce; }
+.endpoint-path { font-size: 12px; font-weight: 600; color: #161616; line-height: 1.3; word-break: break-all; }
+.endpoint-desc { font-size: 11px; color: #6f6f6f; margin-top: 2px; }
+.endpoint-meta { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+.mini-pill { font-size: 10px; padding: 1px 6px; border-radius: 2px; border: 1px solid #c6c6c6; background: #f4f4f4; color: #525252; font-weight: 600; }
+
+.detail-panel { overflow-y: auto; background: #f4f4f4; }
+.detail-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #8d8d8d; gap: 12px; text-align: center; padding: 40px; }
+
+.detail-header { padding: 18px 22px 14px; border-bottom: 1px solid #e0e0e0; background: #fff; }
+.detail-header-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.detail-method { padding: 4px 12px; border-radius: 3px; font-size: 13px; font-weight: 800; }
+.detail-path { font-size: 17px; font-weight: 700; color: #161616; font-family: "Courier New", monospace; word-break: break-all; }
+.detail-summary { font-size: 13px; color: #525252; margin-top: 7px; }
+.detail-desc { font-size: 12px; color: #6f6f6f; margin-top: 5px; line-height: 1.5; }
+
+.detail-body { padding: 16px 22px; display: flex; flex-direction: column; gap: 16px; }
+
+.card { background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; }
+.card-hd { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.card-hd h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #525252; flex: 1; }
+.card-body { padding: 14px; }
+
+.flow { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
+.flow-node { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.fbox { padding: 8px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; line-height: 1.4; border: 2px solid transparent; min-width: 86px; white-space: pre-line; }
+.fb-client  { background: #f4f4f4; border-color: #c6c6c6; color: #161616; }
+.fb-zconn   { background: #0f62fe; color: #fff; border-color: #0353e9; }
+.fb-cics    { background: #0e6027; color: #fff; border-color: #044317; }
+.fb-ims-p   { background: #6929c4; color: #fff; border-color: #491d8b; }
+.fb-db2     { background: #1192e8; color: #fff; border-color: #0072c3; }
+.fb-ims-db  { background: #9f1853; color: #fff; border-color: #740937; }
+.fb-stub    { background: #f4f4f4; border-color: #c6c6c6; color: #525252; }
+.flow-lbl { font-size: 9px; color: #8d8d8d; text-align: center; }
+.arr { display: flex; flex-direction: column; align-items: center; padding: 0 6px; margin-bottom: 14px; }
+.arr-line { color: #c6c6c6; font-size: 16px; line-height: 1; }
+.arr-txt  { font-size: 9px; color: #8d8d8d; text-align: center; white-space: nowrap; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.kv-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f4f4f4; gap: 8px; }
+.kv-row:last-child { border-bottom: none; }
+.kv-k { font-size: 11px; color: #6f6f6f; flex-shrink: 0; }
+.kv-v { font-size: 11px; font-family: "Courier New", monospace; font-weight: 600; color: #161616; text-align: right; word-break: break-all; }
+
+.cpy-cards { display: flex; flex-direction: column; gap: 8px; }
+.cpy-card { border: 1px solid #e0e0e0; border-radius: 3px; overflow: hidden; }
+.cpy-hd { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; cursor: pointer; background: #fafafa; }
+.cpy-hd h4 { font-size: 11px; font-weight: 700; flex: 1; color: #161616; }
+.cpy-role { font-size: 10px; color: #8d8d8d; }
+.badge { font-size: 10px; padding: 2px 7px; border-radius: 2px; font-weight: 700; }
+.b-comm   { background: #e5f6ff; color: #0043ce; border: 1px solid #97c1ff; }
+.b-input  { background: #defbe6; color: #0e6027; border: 1px solid #a7f0ba; }
+.b-output { background: #ffd6e8; color: #9f1853; border: 1px solid #ffafd2; }
+.b-shared { background: #f6f2ff; color: #6929c4; border: 1px solid #d4bbff; }
+.chev { font-size: 10px; color: #8d8d8d; transition: transform .2s; }
+.chev.open { transform: rotate(90deg); }
+.cpy-body { display: none; }
+.cpy-body.open { display: block; }
+.ftable { width: 100%; border-collapse: collapse; }
+.ftable th { background: #f4f4f4; padding: 5px 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #525252; border-bottom: 2px solid #e0e0e0; text-align: left; }
+.ftable td { padding: 5px 10px; border-bottom: 1px solid #f8f8f8; font-size: 11px; vertical-align: top; }
+.ftable tr:last-child td { border-bottom: none; }
+.fn { font-family: "Courier New", monospace; font-weight: 600; }
+.fp { font-family: "Courier New", monospace; color: #0043ce; }
+.fd { color: #6f6f6f; }
+.fg { background: #fafafa; font-weight: 700; color: #525252; }
+.fi { padding-left: 22px !important; }
+
+.resp-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f4f4f4; }
+.resp-row:last-child { border-bottom: none; }
+.sc { font-family: "Courier New", monospace; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 3px; min-width: 36px; text-align: center; }
+.s200,.s201 { background: #defbe6; color: #0e6027; }
+.s400 { background: #fff8e1; color: #a56400; }
+.s401,.s403 { background: #fff1f1; color: #da1e28; }
+.s404 { background: #fff8e1; color: #a56400; }
+.s500 { background: #fff1f1; color: #da1e28; }
+.rd { font-size: 11px; color: #525252; }
+
+.rel-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.rel-chip { padding: 4px 10px; border-radius: 3px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid; }
+.rel-chip:hover { opacity: .75; }
+.rc-cics { background: #edf5ff; color: #0043ce; border-color: #97c1ff; }
+.rc-ims  { background: #f6f2ff; color: #6929c4; border-color: #d4bbff; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c6c6c6; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>Bank of Z — Catálogo de APIs y Servicios z/OS Connect</h1>
+    <p>OpenAPI 3.0 · 13 endpoints · 9 zosAssets · CICS TS 6.3 + IMS v15</p>
+  </div>
+  <div class="topbar-right">
+    <span class="pill pill-get">GET</span>
+    <span class="pill pill-post">POST</span>
+    <span class="pill pill-put">PUT</span>
+    <span class="pill pill-cics">CICS</span>
+    <span class="pill pill-ims">IMS</span>
+  </div>
+</div>
+
+<div class="filterbar">
+  <button class="filter-btn active">Todos (13)</button>
+  <span class="filter-sep"></span>
+  <button class="filter-btn">CICS (9)</button>
+  <button class="filter-btn">IMS (4)</button>
+  <span class="filter-sep"></span>
+  <button class="filter-btn">GET (11)</button>
+  <button class="filter-btn">POST (2)</button>
+  <button class="filter-btn">PUT (1)</button>
+  <span class="filter-sep"></span>
+  <button class="filter-btn">Customers</button>
+  <button class="filter-btn">Accounts</button>
+  <input class="search-box" type="text" />
+</div>
+
+<div class="layout">
+
+  
+  <div class="endpoint-list" id="epList">
+    <div class="group-header">CICS — Customers</div>
+    <div class="endpoint-item" data-tags="cics get customer" data-id="get-cust-id">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/customers/{customerId}</div>
+        <div class="endpoint-desc">Consultar datos de un cliente</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">INQCUST</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="cics post customer" data-id="post-cust">
+      <span class="method-tag m-post">POST</span><div>
+        <div class="endpoint-path">/customers</div>
+        <div class="endpoint-desc">Crear nuevo cliente</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">CRECUST</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="cics put customer" data-id="put-cust-id">
+      <span class="method-tag m-put">PUT</span><div>
+        <div class="endpoint-path">/customers/{customerId}</div>
+        <div class="endpoint-desc">Actualizar datos de un cliente</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">UPDCUST</span></div>
+      </div>
+    </div>
+    <div class="group-header">CICS — Accounts</div>
+    <div class="endpoint-item" data-tags="cics get account" data-id="get-accs">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/accounts</div>
+        <div class="endpoint-desc">Listar cuentas (stub)</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">stub</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="cics get account" data-id="get-acc-id">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/accounts/{accountId}</div>
+        <div class="endpoint-desc">Consultar datos de una cuenta</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">INQACC</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="cics get account" data-id="get-acc-bal">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/accounts/{accountId}/balances</div>
+        <div class="endpoint-desc">Consultar saldo de una cuenta</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">INQACC</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="cics post account" data-id="post-acc-dep">
+      <span class="method-tag m-post">POST</span><div>
+        <div class="endpoint-path">/accounts/{accountId}/deposit</div>
+        <div class="endpoint-desc">Depositar / debitar fondos</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">DBCRFUN</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="cics get account customer" data-id="get-cust-accs">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/customers/{customerId}/accounts</div>
+        <div class="endpoint-desc">Cuentas de un cliente</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">INQACCCU</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="cics get account" data-id="get-acc-txns">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/accounts/{accountId}/transactions</div>
+        <div class="endpoint-desc">Historial transacciones (stub)</div>
+        <div class="endpoint-meta"><span class="pill pill-cics" style="font-size:9px">CICS</span><span class="mini-pill">stub</span></div>
+      </div>
+    </div>
+    <div class="group-header">IMS — Customers</div>
+    <div class="endpoint-item" data-tags="ims get customer" data-id="get-ims-cust">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/ims/customers/{customerId}</div>
+        <div class="endpoint-desc">Consultar cliente en IMS</div>
+        <div class="endpoint-meta"><span class="pill pill-ims" style="font-size:9px">IMS</span><span class="mini-pill">IBGCUDAT</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="ims get account customer" data-id="get-ims-cust-accs">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/ims/customers/{customerId}/accounts</div>
+        <div class="endpoint-desc">Cuentas de cliente en IMS</div>
+        <div class="endpoint-meta"><span class="pill pill-ims" style="font-size:9px">IMS</span><span class="mini-pill">IBACSUM</span></div>
+      </div>
+    </div>
+    <div class="group-header">IMS — Accounts</div>
+    <div class="endpoint-item" data-tags="ims get account" data-id="get-ims-acc">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/ims/accounts/{accountId}</div>
+        <div class="endpoint-desc">Consultar cuenta en IMS</div>
+        <div class="endpoint-meta"><span class="pill pill-ims" style="font-size:9px">IMS</span><span class="mini-pill">IBACSUM</span></div>
+      </div>
+    </div>
+    <div class="endpoint-item" data-tags="ims get account" data-id="get-ims-acc-bal">
+      <span class="method-tag m-get">GET</span><div>
+        <div class="endpoint-path">/ims/accounts/{accountId}/balances</div>
+        <div class="endpoint-desc">Saldo de cuenta en IMS</div>
+        <div class="endpoint-meta"><span class="pill pill-ims" style="font-size:9px">IMS</span><span class="mini-pill">IBACSUM</span></div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="detail-panel" id="detPanel">
+    <div class="detail-empty">
+      <svg width="56" height="56" fill="#c6c6c6"><path d="M16 2a14 14 0 1 0 14 14A14 14 0 0 0 16 2zm0 26a12 12 0 1 1 12-12 12 12 0 0 1-12 12zm-1-7h2v2h-2zm0-12h2v9h-2z"></path></svg>
+      <p style="font-size:14px;font-weight:600">Selecciona un endpoint</p>
+      <p style="font-size:12px;color:#8d8d8d">Haz clic en cualquier operación para ver el flujo completo:<br />endpoint REST → z/OS Connect → programa COBOL → copybooks → Db2/IMS</p>
+    </div>
+  </div>
+</div>
+
+
+
+<div style="text-align:center;font-size:12px;color:#8d8d8d;padding:14px 0 10px;border-top:1px solid #e0e0e0;margin-top:4px">Made with IBM Bob</div>
+</body>
+</html>

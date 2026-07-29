@@ -1,5 +1,8 @@
 ---
 version: "1.0"
-zasset: "INQACC"
-
-# Made with Bob
+# Bridge: z/OS Connect -> Java backend (IBM Bob 2.0 Hackathon 2026)
+# Originalmente: zasset: "INQACC" (CICS program)
+httpServiceProvider:
+  serviceRef: bankofzJavaBackend
+  method: GET
+  path: "/accounts/{accountId}"

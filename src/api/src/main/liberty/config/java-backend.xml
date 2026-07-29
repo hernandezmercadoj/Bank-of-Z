@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    HTTP Service Provider — Bank-of-Z Modernized (Java / Open Liberty)
+    ===================================================================
+    Conecta z/OS Connect Designer con el backend Java generado por IBM Bob 2.0.
+
+    En lugar de llamar a programas CICS/IMS reales en mainframe,
+    z/OS Connect hace proxy a nuestro Open Liberty en el host:9080.
+
+    host.docker.internal → resuelve al host Windows desde dentro del contenedor
+    (configurado en docker-compose.yaml con extra_hosts)
+
+    Hackathon 2026: demostración de stack completo sin z/OS hardware.
+-->
+<server description="Java Backend HTTP Service Provider">
+
+  <zosconnect_httpServiceProvider id="bankofzJavaBackend"
+    host="host.docker.internal"
+    port="9080"
+    basePath="/bankofz-modernized/api/v1" />
+
+</server>
