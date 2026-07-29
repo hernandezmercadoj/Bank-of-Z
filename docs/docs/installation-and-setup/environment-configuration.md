@@ -5,143 +5,102 @@ title: Environment Configuration
 
 # Environment Configuration
 
-This section describes how to configure connectivity and application settings required to build and deploy Bank of Z.
+This section describes the configuration required before deploying Bank of Z. Complete these steps before starting one of the getting-started tutorials.
 
-Before proceeding, ensure that you have completed the prerequisites and have access to a supported z/OS environment.
+Before you begin, ensure that your z/OS environment meets all requirements described in [Prerequisites](prerequisites.md). In particular, the Db2 subsystem (DBD1) and required RACF definitions must be in place before the setup scripts can run successfully.
 
-**Note:** This topic describes the common environment configuration required to build and deploy Bank of Z. It focuses on the standard development workflow and does not include IBM Premium Bob for Z-specific configuration. See [IBM Premium Bob for Z](https://bob.ibm.com/docs/ide) documentation for product-specific setup instructions.
+## Configure the application
 
-## Configure a Zowe Profile
+Edit `.setup/config/config.yaml` in your local clone of the repository. This file controls all paths and settings used by the setup scripts.
 
-Create a Zowe CLI profile that provides connectivity to the target z/OS environment.
+The fields you must update for your environment are:
 
-The profile typically includes:
+```yaml
+# Sandbox root directory on z/OS USS
+# All setup outputs are created under this path
+sandbox:
+  path: "/usr/local/sandboxes/bank-of-z"   # ← change to your USS workspace path
 
-- z/OSMF connection details
-- RSE API configuration
-- SSH configuration
-- TSO configuration
-- z/Open Debug configuration
+# Application identity — used for dataset naming
+app:
+  base_name: "BANKZ"     # Dataset high-level qualifier (max 8 chars)
+  short_name: "BOZ"      # Short identifier (max 4 chars)
+  zos_version: "V0R1M0"  # Version string used in dataset names
 
-If you are using Visual Studio Code, see the [IBM Z® Open Editor](https://ibm.github.io/zopeneditor-about/Docs/creating_team_profiles.html) documentation for instructions on creating Zowe Explorer configuration profiles for the required profile types, including z/OSMF, SSH, TSO, Debug, and CICS.
+# IBM Dependency Based Build
+dbb:
+  dbb_home: "/usr/local/sandboxes/tools/dbb"  # ← path to DBB installation on USS
 
-For a complete sample configuration, see [Configuration Reference](../reference/configuration-reference.md).
+# Java (on z/OS USS)
+java:
+  java_home: "/usr/local/sandboxes/tools/J21.0_64"  # ← path to Java 21 on USS
 
-### Example Configuration
+# Z Open Automation Utilities
+zoau:
+  zoau_home: "/usr/lpp/IBM/zoautil"  # ← path to ZOAU installation on USS
 
-```json
-{
-  "$schema": "./zowe.schema.json",
-  "profiles": {
-    "BankOfZDemo": {
-      "properties": {
-        "host": "<your host>",
-        "rejectUnauthorized": false
-      },
-      "secure": ["user", "password"],
-      "profiles": {
-        "rseapi": {
-          "type": "rse",
-          "properties": {
-            "port": 8195,
-            "basePath": "rseapi",
-            "protocol": "https"
-          }
-        },
-        "zosmf": {
-          "type": "zosmf",
-          "properties": {
-            "port": 10443
-          }
-        },
-        "ssh": {
-          "type": "ssh",
-          "properties": {
-            "port": 22
-          }
-        },
-        "tso": {
-          "type": "tso",
-          "properties": {
-            "account": "<account>",
-            "codePage": "1047",
-            "logonProcedure": "<logon procedure>"
-          }
-        },        
-        "zOpenDebug": {
-          "type": "zOpenDebug",
-          "properties": {
-            "dpsPort": 8192,
-            "rdsPort": 8194,
-            "dpsContextRoot": "api/v1",
-            "dpsSecured": true,
-            "authenticationType": "basic",
-            "uuid": "4267a0f6-b756-4f3c-b900-0b959b4567c3"
-          }
-        }
-      }
-    }
-  },
-  "defaults": {
-    "zosmf": "BankOfZDemo.zosmf",
-    "tso": "BankOfZDemo.tso",
-    "ssh": "BankOfZDemo.ssh",
-    "rse": "BankOfZDemo.rseapi",
-    "zOpenDebug": "BankOfZDemo.zOpenDebug"
-  },
-  "autoStore": true
-}
+# zconfig (provisioning tool)
+zconfig:
+  zconfig_home: "/usr/local/sandboxes/tools/zconfig"  # ← path to zconfig on USS
+  zcb_home: "/usr/local/sandboxes/tools/zrb/cics-resource-builder-1.0.6"
+
+# Wazi Deploy
+wazideploy:
+  wazideploy_home: "/global/opt/pyenv/gdp"  # ← path to Wazi Deploy on USS
+
+# ZCodeScan (static analysis)
+zcodescan:
+  zcodescan_home: "/global/opt/pyenv/akf"    # ← path to ZCodeScan on USS
+  config_file: "${HOME}/zcs_config_file.yml"  # ← path to your ZCodeScan config file
+
+# z/OS Connect
+zosconnect:
+  zosconnect_home: "/usr/lpp/IBM/zosconnect/bin/"
+  http_port: 9080   # ← update if your environment uses different ports
+  https_port: 9443
+
+# Db2
+db2:
+  ssid: "DBD1"       # ← Db2 subsystem ID (must exist before deployment)
+  hostname: "localhost"
+  port: 8102
 ```
 
-Save the configuration in:
+All other fields use template references ({% raw %}`{{section.field}}`{% endraw %}) and do not require changes unless your environment uses non-default values. For a complete field reference, see [Configuration Reference](../reference/configuration-reference.html).
 
-```text
-~/.zowe/zowe.config.json
-```
+## Grant Db2 permissions (non-IBMUSER accounts only)
 
-For a complete description of all configuration options, see the [Configuration Reference](../reference/configuration-reference.md).
+If you are not using the `IBMUSER` user ID, grant your user ID permission to create Db2 database objects. Otherwise, the `environment` setup fails during Db2 table creation.
 
-## Verify Connectivity
-
-Verify that your workstation can communicate with the target environment.
-
-### Examples
+1. Edit `.setup/jcl/Db2-grant.jcl` and replace `MYUSER` with your TSO user ID.
+2. Submit the job and verify that it completes with a condition code (CC) of 0004 or lower:
 
 ```bash
-zowe zosmf check status
-zowe rse check status
+JOBID=$(jsub -f .setup/jcl/Db2-grant.jcl)
+jls $JOBID        # CC must be 0004 max
+pjdd $JOBID SYSPRINT
 ```
 
-Successful responses confirm connectivity to the target z/OS system.
+## Create the ZCodeScan configuration File
 
-## Configure Application Resources
+The static scan stage requires a ZCodeScan configuration file. This file must be created manually and encoded in **ISO8859-1** because ZCodeScan cannot read files saved in IBM-1047 or UTF-8.
 
-Bank of Z automatically provisions the required CICS region, associated CICS resources, and z/OS Connect runtime as part of the setup process. No additional manual CICS resource configuration is required.
+Create `~/zcs_config_file.yml` or the file specified by `zcodescan.config_file` in  `config.yaml`:
 
-Before deployment, ensure that the following prerequisites are available in your target environment:
+```yaml
+license_server:
+  url: https://127.0.0.1:8195
+  user: MYUSER
+  password: MY_PASSWORD
+  verify: false
+```
 
-- A pre-existing Db2 subsystem (DBD1)
-- IMS runtime environment
-- IBM MQ (if required for your deployment scenario)
+> **Note:** The password is automatically encrypted after the first scan. You only need to provide it in plain text the first use.
 
-Bank of Z also requires appropriate security definitions to be configured in the site’s security manager (for example, RACF or an equivalent product). The required security definitions depend on the target environment and are not currently documented as part of the Bank of Z installation process.
+## Next steps
 
-Additional deployment-specific configuration requirement is described in the [Build and Deploy](build-and-deploy.md).
+Continue with one of the following getting-started tutorials:
 
-## Validate Configuration
-
-Before building the application, verify that:
-
-- Zowe connectivity is working
-- Required configuration files have been updated
-- Access permissions have been granted
-- Target middleware environments are available
-- Required security definitions have been configured
-- The required Db2 subsystem (DBD1) is available
-- Deployment tooling is installed and accessible
-
-**Note:** Resolving configuration issues before starting the build process can significantly reduce deployment failures.
-
-## Next Step
-
-After completing the environment configuration, continue to [IDE Setup](ide-setup.md) to install and configure the supported development tools and extensions.
+- [Deploy Using Direct USS Access](deploy-direct.html)
+- [Deploy Using Zowe CLI](deploy-zowe-cli.html)
+- [Deploy Using GRUB](deploy-grub.html)

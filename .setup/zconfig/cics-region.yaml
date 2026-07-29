@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=./cics_region_0.4.1.dev1.schema.json
+# yaml-language-server: $schema=./cics_region_0.7.0.schema.json
 vars:
   applid: "CICSBOZ"
   sysid: "CBOZ"
@@ -10,6 +10,9 @@ vars:
   cics_uss_dir: "/usr/lpp/cicsts/cicsts63"
   db2_hlq: "DB2V13"
   eqaw_hlq: "EQAW.SEQAMOD"
+  tcpip_hlq: "TCPIP"
+  cics_sec: "YES"
+  db2_ssid: "DBD1"
 
 cics_region:
   applid: "{{ vars.applid }}"
@@ -40,10 +43,11 @@ cics_region:
       region: 0M
     dfhrpl:
       top_data_sets:
-        - "{{ vars.eqaw_hlq }}.SEQAMOD"
+        - "{{ vars.debug_hlq }}.SEQAMOD"
       data_sets:
         - SYS1.SIEAMIGE
         - SYS1.MIGLIB
+        - "{{ vars.tcpip_hlq }}.SEZATCP"
     steplib:
       top_data_sets:
         - "{{ vars.db2_hlq }}.SDSNLOAD"
@@ -54,7 +58,7 @@ cics_region:
     grplist: DFHLIST,BANKZLST
     gmtext: SMSS Region provisioned with zconfig
     gmtran: CESL
-    sec: "YES"
+    sec: "{{ vars.cics_sec }}"
     db2conn: "YES"
     securetcpip: "NO"
     ussconfig: "{{ vars.region_uss_dir }}/{{ vars.applid }}/config"
@@ -65,6 +69,14 @@ cics_region:
     xppt: "NO"
     xuser: "NO"
     xfct: "NO"
+    xtst: "NO"
+    xdct: "NO"
+    tcpip: "YES"
+
+  startup_programs:
+    third_phase:
+      - EZACIC20
+      - EQA0CPLT
 
   extensions:
     cics_cmci:
@@ -75,4 +87,4 @@ cics_region:
 
   jvm_profile_dir: "{{ vars.region_uss_dir }}/{{ vars.applid }}/JVMProfiles"
   jvm_profiles:
-    - "EYUSMSSJ.jvmprofile"
+    - path: "EYUSMSSJ.jvmprofile"
